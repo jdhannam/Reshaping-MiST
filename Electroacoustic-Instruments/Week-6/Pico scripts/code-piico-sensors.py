@@ -443,3 +443,78 @@ synth.press(note)
 while True:
     time.sleep(1)
 '''
+
+
+
+'''
+# this for the piicodev MMC5603 Magnotometer board
+# compass calculation
+
+import board
+import time
+
+from piicodev_mmc5603_circuitpython import MMC5603
+
+i2c = board.I2C()
+
+compass = MMC5603(i2c)
+
+compass.set_declination(11.8)
+
+while True:
+
+    xyz = compass.read()
+
+    print(
+        "X={:.1f}uT Y={:.1f}uT Z={:.1f}uT".format(
+            xyz["x"],
+            xyz["y"],
+            xyz["z"]
+        )
+    )
+
+    print(
+        "Heading:",
+        compass.read_heading()
+    )
+
+    time.sleep(0.2)
+'''
+
+
+'''
+# this for the piicodev MMC5603 Magnotometer board
+# Magnet detction calculation
+
+import board
+import time
+
+from piicodev_mmc5603_circuitpython import MMC5603
+
+i2c = board.I2C()
+
+compass = MMC5603(i2c)
+
+print("Calibrating baseline...")
+time.sleep(2)
+
+baseline = compass.read_magnitude()
+
+print("Baseline =", baseline)
+
+while True:
+
+    strength = compass.read_magnitude()
+
+    delta = abs(strength - baseline)
+
+    print(
+        "Strength = {:.1f}uT".format(strength),
+        "Change = {:.1f}uT".format(delta)
+    )
+
+    if delta > 50:
+        print("MAGNET DETECTED!")
+
+    time.sleep(0.2)
+'''
