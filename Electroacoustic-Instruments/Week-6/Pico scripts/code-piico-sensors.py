@@ -447,71 +447,71 @@ while True:
 
 
 '''
-import board
-import time
+# Magnetometer compass reading test
 
+import time
+import board
+import busio
 from piicodev_mmc5603_circuitpython import MMC5603
 
-i2c = board.I2C()
+i2c = busio.I2C(board.GP9, board.GP8)  # PiicoDev expansion board I2C0
+magno = MMC5603(i2c)
 
-compass = MMC5603(i2c)
-
-compass.set_declination(11.8)
+print("MMC5603 test starting...")
 
 while True:
+    d = magno.read()
+    heading = magno.read_heading()
+    magnitude = magno.read_magnitude()
 
-    xyz = compass.read()
-
-    print(
-        "X={:.1f}uT Y={:.1f}uT Z={:.1f}uT".format(
-            xyz["x"],
-            xyz["y"],
-            xyz["z"]
-        )
-    )
-
-    print(
-        "Heading:",
-        compass.read_heading()
-    )
-
-    time.sleep(0.2)
+    print("X: {:.2f} uT  Y: {:.2f} uT  Z: {:.2f} uT".format(
+        d["x"], d["y"], d["z"]
+    ))
+    print("Heading: {:.1f}°   Magnitude: {:.2f} uT".format(
+        heading, magnitude
+    ))
+    print()
+    time.sleep(0.5)
 '''
 
 
+
 '''
-import board
+# Magnetometer Magnet detection test
+
 import time
+import board
+import busio
 
 from piicodev_mmc5603_circuitpython import MMC5603
 
-i2c = board.I2C()
+i2c = busio.I2C(board.GP9, board.GP8)
+magno = MMC5603(i2c)
 
-compass = MMC5603(i2c)
+print("Magnet detector starting...")
 
-print("Calibrating baseline...")
-time.sleep(2)
+# Take a baseline reading with NO magnet nearby
+baseline = magno.read()
+print("Baseline:", baseline)
 
-baseline = compass.read_magnitude()
-
-print("Baseline =", baseline)
+THRESHOLD = 20   # µT change needed to detect a magnet
 
 while True:
+    result = magno.detect_magnet(baseline, threshold=THRESHOLD)
 
-    strength = compass.read_magnitude()
-
-    delta = abs(strength - baseline)
-
-    print(
-        "Strength = {:.1f}uT".format(strength),
-        "Change = {:.1f}uT".format(delta)
-    )
-
-    if delta > 50:
+    if result["present"]:
         print("MAGNET DETECTED!")
+    else:
+        print("No magnet")
 
-    time.sleep(0.2)
+    print("Strength: {:.2f} uT".format(result["strength_uT"]))
+    print("Change:   {:.2f} uT".format(result["delta_uT"]))
+    print("Score:    {} / 100".format(result["score"]))
+    print()
+
+    time.sleep(0.1)
 '''
+
 
 
 '''
