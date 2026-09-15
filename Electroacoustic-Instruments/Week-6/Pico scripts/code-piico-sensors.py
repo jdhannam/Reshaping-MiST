@@ -447,9 +447,6 @@ while True:
 
 
 '''
-# this for the piicodev MMC5603 Magnotometer board
-# compass calculation
-
 import board
 import time
 
@@ -483,9 +480,6 @@ while True:
 
 
 '''
-# this for the piicodev MMC5603 Magnotometer board
-# Magnet detction calculation
-
 import board
 import time
 
@@ -517,4 +511,84 @@ while True:
         print("MAGNET DETECTED!")
 
     time.sleep(0.2)
+'''
+
+
+'''
+# DFRobot EC11 rotary encoder test
+
+import board
+import digitalio
+import time
+
+
+# ------ Pin setup
+
+pinA = digitalio.DigitalInOut(board.GP14)
+pinA.direction = digitalio.Direction.INPUT
+pinA.pull = digitalio.Pull.UP
+
+pinB = digitalio.DigitalInOut(board.GP15)
+pinB.direction = digitalio.Direction.INPUT
+pinB.pull = digitalio.Pull.UP
+
+pinC = digitalio.DigitalInOut(board.GP13)   # Button
+pinC.direction = digitalio.Direction.INPUT
+pinC.pull = digitalio.Pull.UP
+
+
+# ------ State tracking
+
+lastA = pinA.value
+position = 0
+
+print("Rotary encoder test running...\n")
+
+while True:
+    a = pinA.value
+    b = pinB.value
+    button = not pinC.value   # active‑low
+
+    # Detect rising edge on A
+    if a != lastA and a == True:
+        if b == False:
+            position += 1
+            print("Knob: +1  (increasing)   Position:", position)
+        else:
+            position -= 1
+            print("Knob: -1  (decreasing)   Position:", position)
+
+    lastA = a
+
+    if button:
+        print("Button pressed!")
+
+    time.sleep(0.002)
+'''
+
+
+'''
+# A 10K slide potentiometer (analog input) test
+
+import board
+import analogio
+import time
+
+
+# Connect the potentiometer wiper to GP26 (ADC0)
+pot = analogio.AnalogIn(board.GP26)
+
+# Convert raw 16‑bit ADC reading to voltage
+def get_voltage(pin):
+    return (pin.value * 3.3) / 65535
+
+print("Slide potentiometer test running...\n")
+
+while True:
+    raw = pot.value            # 0–65535
+    voltage = get_voltage(pot) # 0–3.3V approx
+
+    print("Raw:", raw, "Voltage:", voltage)
+
+    time.sleep(0.1)
 '''
